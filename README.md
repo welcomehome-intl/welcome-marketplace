@@ -296,36 +296,162 @@ welcome-marketplace/
 
 ## Smart Contract Architecture
 
+### Contract Overview and Relationships
+
+The following diagram shows the complete smart contract architecture with all relationships:
+
+```mermaid
+classDiagram
+    class AccessControl {
+        +mapping isKYCVerified
+        +mapping isAdmin
+        +mapping isPropertyManager
+        +mapping kycTimestamp
+        +bool systemPaused
+        +setAdmin(address, bool)
+        +setPropertyManager(address, bool)
+        +setKYCStatus(address, bool)
+        +batchSetKYC(address[], bool)
+        +pauseSystem()
+        +unpauseSystem()
+        +emergencyTransferOverride()
+    }
+
+    class OwnershipRegistry {
+        +mapping userTokenBalances
+        +mapping userOwnedTokens
+        +mapping tokenHolders
+        +mapping authorizedUpdaters
+        +uint256 totalUniqueHolders
+        +uint256 totalTokenTypes
+        +updateOwnership(address, address, uint256)
+        +setAuthorizedUpdater(address, bool)
+        +getTokenHolders(address)
+        +getUserTokenBalance(address, address)
+    }
+
+    class PropertyFactory {
+        +mapping properties
+        +mapping propertiesByCreator
+        +uint256 nextPropertyId
+        +AccessControl accessControl
+        +OwnershipRegistry ownershipRegistry
+        +createProperty(string, string, uint256, uint256, uint256)
+        +distributeTokens(uint256, address, uint256)
+        +purchaseTokens(uint256, uint256)
+        +updatePropertyMetadata(uint256, string)
+        +setPropertyActive(uint256, bool)
+    }
+
+    class PropertyToken {
+        +uint256 propertyId
+        +address propertyFactory
+        +AccessControl accessControl
+        +OwnershipRegistry ownershipRegistry
+        +mapping transferRestrictions
+        +bool tradingEnabled
+        +uint256 dividendPool
+        +mapping lastDividendClaim
+        +transfer(address, uint256)
+        +distributeDividends()
+        +claimDividends()
+        +setTradingEnabled(bool)
+        +adminTransfer(address, address, uint256)
+    }
+
+    class Marketplace {
+        +mapping listings
+        +mapping offers
+        +uint256 nextListingId
+        +uint256 nextOfferId
+        +uint256 platformFeePercent
+        +address feeCollector
+        +AccessControl accessControl
+        +createListing(address, uint256, uint256)
+        +buyFromListing(uint256, uint256)
+        +createOffer(uint256, uint256, uint256)
+        +acceptOffer(uint256)
+        +cancelListing(uint256)
+    }
+
+    class Ownable {
+        <<OpenZeppelin>>
+        +address owner
+        +transferOwnership(address)
+    }
+
+    class ReentrancyGuard {
+        <<OpenZeppelin>>
+        +modifier nonReentrant
+    }
+
+    class ERC20 {
+        <<OpenZeppelin>>
+        +mapping balances
+        +mapping allowances
+        +totalSupply()
+        +balanceOf(address)
+        +transfer(address, uint256)
+        +approve(address, uint256)
+    }
+
+    Ownable <|-- AccessControl
+    ReentrancyGuard <|-- AccessControl
+    ReentrancyGuard <|-- PropertyFactory
+    ERC20 <|-- PropertyToken
+    ReentrancyGuard <|-- PropertyToken
+    ReentrancyGuard <|-- Marketplace
+
+    PropertyFactory --> AccessControl : reads roles & KYC
+    PropertyFactory --> OwnershipRegistry : registers tokens
+    PropertyFactory ..> PropertyToken : creates instances
+    PropertyToken --> AccessControl : checks KYC & pause
+    PropertyToken --> OwnershipRegistry : updates on transfer
+    Marketplace --> AccessControl : checks KYC & pause
+    Marketplace --> PropertyToken : calls transferFrom
+    OwnershipRegistry --> AccessControl : checks roles
+```
+
 ### Complete System Flow
 
 The following diagram illustrates the entire lifecycle from property creation through dividend distribution:
 
-```
-Property Manager Creates Property
-           ↓
-PropertyFactory Deploys PropertyToken
-           ↓
-Tokens Distributed to KYC-Verified Investors
-           ↓
-    /              \
-   /                \
-Primary Market    Secondary Market
-(Direct Purchase) (Marketplace Trading)
-   \                /
-    \              /
-           ↓
-Token Holders Receive Ownership
-           ↓
-Property Manager Distributes Dividends
-           ↓
-Token Holders Claim Proportional Share
+```mermaid
+flowchart TD
+    Start([Property Manager]) --> Create[Create Property via PropertyFactory]
+    Create --> Deploy[PropertyFactory Deploys PropertyToken]
+    Deploy --> Mint[Mint Total Supply to Factory]
+    Mint --> Distribute{Distribution Method}
+
+    Distribute -->|Direct Distribution| DistTokens[Property Manager Distributes to KYC Users]
+    Distribute -->|Direct Purchase| Purchase[Investors Purchase with HBAR]
+
+    DistTokens --> Holdings[Token Holdings]
+    Purchase --> Holdings
+
+    Holdings --> Trade{Trading Options}
+
+    Trade -->|Hold| Dividends[Receive Dividends]
+    Trade -->|Sell| Marketplace[List on Secondary Marketplace]
+
+    Marketplace --> Buyer[Buyer Purchases from Listing]
+    Buyer --> Holdings
+
+    Dividends --> Claim[Claim Proportional Share]
+    Claim --> Holdings
+
+    style Start fill:#e1f5ff
+    style Create fill:#fff4e6
+    style Deploy fill:#fff4e6
+    style Holdings fill:#e8f5e9
+    style Dividends fill:#f3e5f5
+    style Marketplace fill:#fce4ec
 ```
 
 ### Contract Interaction Flow
 
-For detailed architecture diagrams including:
-- Contract overview and relationships
-- Property creation and distribution flow
+For additional detailed architecture diagrams including:
+- Property creation and distribution sequence
 - Token transfer validation flow
 - Marketplace trading flow
 - Access control and authorization
