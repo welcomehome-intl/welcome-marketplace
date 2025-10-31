@@ -1,7 +1,7 @@
 "use client"
 
 
-import { Search, Bell, Wallet, Home, User } from "lucide-react"
+import { Search, Bell, Wallet, Home, User, LogOut } from "lucide-react"
 
 import { Input } from "../ui/input"
 import { Button } from "../ui/button"
@@ -11,11 +11,13 @@ import { WalletConnect } from "../web3/wallet-connect"
 import { NotificationBell } from "../ui/notifications"
 import { UserProfileModal } from "../profile/user-profile-modal"
 import { useUserProfile } from "@/app/lib/supabase/hooks/use-user-profile"
+import { useAuth } from "../providers/auth-provider"
 import { useState } from "react"
 
 export function Header() {
   const { address, isConnected } = useAccount()
   const { profile } = useUserProfile()
+  const { user, signOut } = useAuth()
   const [showProfileModal, setShowProfileModal] = useState(false)
 
   const formatAddress = (addr: string) => {
@@ -75,6 +77,25 @@ export function Header() {
                 </span>
               )}
             </Button>
+          )}
+
+          {/* Auth User Info and Logout */}
+          {user && (
+            <>
+              <div className="hidden lg:flex items-center gap-2 text-sm text-gray-600">
+                <User className="h-4 w-4" />
+                <span>{user.email}</span>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={signOut}
+                className="flex items-center gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                <span className="hidden sm:inline">Logout</span>
+              </Button>
+            </>
           )}
 
           {/* Real-time Notification Bell */}

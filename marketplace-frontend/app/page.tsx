@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { formatUnits } from 'viem'
@@ -13,6 +13,8 @@ import { DashboardLayout } from '@/app/components/layout/dashboard-layout'
 import { MapPin, Building2, TrendingUp, Users, Calendar, DollarSign, RefreshCw } from 'lucide-react'
 import { useAutoFetchProperties } from '@/app/lib/web3/hooks/use-auto-fetch-properties'
 import { useEnrichedProperties, EnrichedPropertyDisplay } from '@/app/lib/supabase/hooks/use-enriched-properties'
+import { AuthModal } from '@/app/components/auth/auth-modal'
+import { useAuth } from '@/app/components/providers/auth-provider'
 import Image from 'next/image'
 
 // Property images mapping
@@ -190,10 +192,19 @@ function PropertySkeleton() {
 
 export default function HomePage() {
   const { address, isConnected } = useAccount()
+  const { user, loading: authLoading } = useAuth()
   const { properties, isLoading, error, refetch } = useEnrichedProperties()
   const [sortBy, setSortBy] = useState<'newest' | 'price' | 'supply'>('newest')
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null)
+  const [showAuthModal, setShowAuthModal] = useState(false)
+
+  // Show auth modal when page loads if user is not authenticated
+  useEffect(() => {
+    if (!authLoading && !user) {
+      setShowAuthModal(true)
+    }
+  }, [authLoading, user])
 
   const handleRefresh = async () => {
     setIsRefreshing(true)
@@ -307,6 +318,13 @@ export default function HomePage() {
           </div>
         )}
       </div>
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onSuccess={() => setShowAuthModal(false)}
+      />
     </DashboardLayout>
   )
 }
