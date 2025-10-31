@@ -1,0 +1,86 @@
+# Welcome Marketplace - Combined .gitignore
+# Root-level patterns for both smart contracts and frontend
+
+# ========================================
+# Environment Variables & Secrets
+# ========================================
+.env
+.env*
+*.pem
+
+# ========================================
+# Smart Contracts (Foundry)
+# ========================================
+# Build artifacts
+marketplace-contracts/cache/
+marketplace-contracts/out/
+
+# Dependencies
+marketplace-contracts/lib/
+
+# Deployment logs
+marketplace-contracts/broadcast/
+
+# Deployment tracking
+marketplace-contracts/deployment_step_*.json
+
+# Documentation
+marketplace-contracts/docs/
+
+# ========================================
+# Frontend (Next.js)
+# ========================================
+# Dependencies
+marketplace-frontend/node_modules/
+marketplace-frontend/.pnp
+marketplace-frontend/.pnp.*
+marketplace-frontend/.yarn/*
+!marketplace-frontend/.yarn/patches
+!marketplace-frontend/.yarn/plugins
+!marketplace-frontend/.yarn/releases
+!marketplace-frontend/.yarn/versions
+
+# Testing
+marketplace-frontend/coverage/
+
+# Next.js build output
+marketplace-frontend/.next/
+marketplace-frontend/out/
+marketplace-frontend/build/
+
+# Production
+marketplace-frontend/build/
+
+# Debug logs
+marketplace-frontend/npm-debug.log*
+marketplace-frontend/yarn-debug.log*
+marketplace-frontend/yarn-error.log*
+marketplace-frontend/.pnpm-debug.log*
+
+# Vercel
+marketplace-frontend/.vercel
+
+# TypeScript
+marketplace-frontend/*.tsbuildinfo
+marketplace-frontend/next-env.d.ts
+
+# ========================================
+# IDE & Editor
+# ========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ========================================
+# Operating System
+# ========================================
+.DS_Store
+Thumbs.db
+
+# ========================================
+# Logs & Temporary Files
+# ========================================
+*.log
+*.tmp
+*.temp

@@ -1,0 +1,126 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #111827;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: #111827;
+  --color-primary: #14b8a6;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #f4f4f5;
+  --color-secondary-foreground: #171717;
+  --color-muted: #f1f5f9;
+  --color-muted-foreground: #1f2937;
+  --color-accent: #14b8a6;
+  --color-accent-foreground: #ffffff;
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #e4e4e7;
+  --color-input: #e4e4e7;
+  --color-ring: #14b8a6;
+  --color-card: #ffffff;
+  --color-card-foreground: #171717;
+  --radius: 0.5rem;
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+  transition-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* Optimize animations */
+@media (prefers-reduced-motion: no-preference) {
+  * {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Disable smooth scrolling for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* SMART TEXT VISIBILITY FIX - Target specific issues without breaking design */
+@layer base {
+  /* Fix light gray text on light backgrounds only */
+  .bg-white .text-gray-300,
+  .bg-white .text-gray-400,
+  .bg-white .text-gray-500,
+  .bg-gray-50 .text-gray-300,
+  .bg-gray-50 .text-gray-400,
+  .bg-gray-50 .text-gray-500 {
+    color: #374151 !important;
+  }
+
+  /* Fix muted text only on light backgrounds */
+  .bg-white .text-muted-foreground,
+  .bg-gray-50 .text-muted-foreground {
+    color: #374151 !important;
+  }
+
+  /* Ensure headings are readable on light backgrounds */
+  .bg-white h1, .bg-white h2, .bg-white h3, .bg-white h4, .bg-white h5, .bg-white h6,
+  .bg-gray-50 h1, .bg-gray-50 h2, .bg-gray-50 h3, .bg-gray-50 h4, .bg-gray-50 h5, .bg-gray-50 h6 {
+    color: #111827 !important;
+  }
+
+  /* Fix small text readability on light backgrounds */
+  .bg-white .text-sm:not(.text-white):not(.text-primary-foreground),
+  .bg-gray-50 .text-sm:not(.text-white):not(.text-primary-foreground) {
+    color: #374151 !important;
+  }
+
+  /* Preserve white text on dark backgrounds */
+  .bg-gray-900 *, .bg-gray-800 *, .bg-black *,
+  .bg-primary *, [class*="bg-gradient"] * {
+    color: inherit;
+  }
+
+  /* Ensure dark cards keep their white text */
+  .bg-gray-900 .text-white,
+  .bg-primary .text-white,
+  [class*="bg-gradient"] .text-white {
+    color: white !important;
+  }
+}

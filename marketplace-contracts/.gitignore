@@ -1,0 +1,35 @@
+# Foundry Build Artifacts
+cache/
+out/
+
+# Foundry Dependencies
+lib/
+
+# Deployment Logs (may contain sensitive data)
+broadcast/
+
+# Deployment Tracking Files
+deployment_step_*.json
+
+# Environment Variables (contains private keys)
+.env
+
+# Documentation
+docs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
